@@ -45,8 +45,7 @@ public abstract class PostMapper {
             @Mapping(target = "createdDate", source = "createdDate"),
             @Mapping(target = "timestamp", source = "createdDate"),
             @Mapping(target = "userName", source = "user.username"),
-            @Mapping(target = "user", source = "user.username"),
-            @Mapping(target = "username", source = "user.username"),
+            // Remove duplicate/conflicting user mappings
             @Mapping(target = "commentCount", expression = "java(commentCount(post))"),
             @Mapping(target = "comments", ignore = true),
             @Mapping(target = "voteCount", expression = "java(post.getVoteCount() != null ? post.getVoteCount().intValue() : 0)"),
@@ -69,7 +68,7 @@ public abstract class PostMapper {
             @Mapping(target = "success", constant = "true"),
             @Mapping(target = "error", constant = ""),
             @Mapping(target = "message", constant = ""),
-            @Mapping(target = "subredditName", constant = "")
+            @Mapping(target = "subredditName", source = "subredditName") // If field exists in Post, else use constant
     })
     public abstract PostResponse mapToDto(Post post);
 
@@ -77,20 +76,20 @@ public abstract class PostMapper {
     @Mappings({
             @Mapping(target = "id", ignore = true),
             @Mapping(target = "createdDate", expression = "java(java.time.Instant.now())"),
-            @Mapping(target = "title", source = "postRequest.title"),
-            @Mapping(target = "url", source = "postRequest.url"),
-            @Mapping(target = "description", source = "postRequest.description"),
+            @Mapping(target = "title", source = "title"),
+            @Mapping(target = "url", source = "url"),
+            @Mapping(target = "description", source = "description"),
             @Mapping(target = "voteCount", constant = "0L"),
             @Mapping(target = "user", source = "user"),
             @Mapping(target = "comments", ignore = true),
-            @Mapping(target = "image", source = "postRequest.image"),
-            @Mapping(target = "video", source = "postRequest.video"),
-            @Mapping(target = "pollQuestion", source = "postRequest.pollQuestion"),
-            @Mapping(target = "pollOptions", source = "postRequest.pollOptions"),
-            @Mapping(target = "pollDuration", source = "postRequest.pollDuration"),
-            @Mapping(target = "linkUrl", source = "postRequest.linkUrl"),
-            @Mapping(target = "linkTitle", source = "postRequest.linkTitle"),
-            @Mapping(target = "community", source = "postRequest.community")
+            @Mapping(target = "image", source = "image"),
+            @Mapping(target = "video", source = "video"),
+            @Mapping(target = "pollQuestion", source = "pollQuestion"),
+            @Mapping(target = "pollOptions", source = "pollOptions"),
+            @Mapping(target = "pollDuration", source = "pollDuration"),
+            @Mapping(target = "linkUrl", source = "linkUrl"),
+            @Mapping(target = "linkTitle", source = "linkTitle"),
+            @Mapping(target = "community", source = "community")
     })
     public abstract Post map(PostRequest postRequest, User user);
 
@@ -131,7 +130,7 @@ public abstract class PostMapper {
             @Mapping(target = "message", constant = ""),
             @Mapping(target = "subredditName", constant = "")
     })
-    // ✅ FIXED: Helper to check if post is upvoted by current user
+    // ✅ FIXED: Helper to check if a post is upvoted by the current user
     protected boolean isPostUpVoted(Post post) {
         try {
             User currentUser = authService.getCurrentUser();
@@ -139,7 +138,7 @@ public abstract class PostMapper {
                     .map(vote -> vote.getVoteType().equals(VoteType.UPVOTE))
                     .orElse(false);
         } catch (Exception e) {
-            // User not authenticated or other error - return false
+            // User isn't authenticated or other error - return false
             log.debug("Failed to check upvote status for post {}: {}", post.getId(), e.getMessage());
             return false;
         }
@@ -153,7 +152,7 @@ public abstract class PostMapper {
                     .map(vote -> vote.getVoteType().equals(VoteType.DOWNVOTE))
                     .orElse(false);
         } catch (Exception e) {
-            // User not authenticated or other error - return false
+            // User isn't authenticated or other error - return false
             log.debug("Failed to check downvote status for post {}: {}", post.getId(), e.getMessage());
             return false;
         }
