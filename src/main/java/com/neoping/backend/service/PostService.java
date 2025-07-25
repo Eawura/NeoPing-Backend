@@ -1,8 +1,9 @@
 package com.neoping.backend.service;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import com.neoping.backend.mapper.PostDTOMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -12,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.neoping.backend.dto.PostRequest;
 import com.neoping.backend.dto.PostResponse;
-import com.neoping.backend.mapper.PostMapper;
 import com.neoping.backend.model.Post;
 import com.neoping.backend.model.User;
 import com.neoping.backend.repository.PostRepository;
@@ -49,7 +49,7 @@ public class PostService {
 
     private final UserRepository userRepository;
     private final AuthService authService;
-    private final PostMapper postMapper;
+    private final PostDTOMapper postDtoMapper;
 
     // ✅ NEW: Delete post by ID
     public void deletePost(Long postId, String currentUsername) {
@@ -70,10 +70,12 @@ public class PostService {
 
     // ✅ EXISTING: Basic get all posts
     public List<PostResponse> getAllPosts() {
-        return postRepository.findAll()
-                .stream()
-                .map(postMapper::mapToDto)
-                .collect(Collectors.toList());
+        List<Post> posts = postRepository.findAll();
+        List<PostResponse> postResponses = new ArrayList<>();
+        for (Post post : posts) {
+            postResponses.add(postDtoMapper.mapToDto(post));
+        }
+        return postResponses;
     }
 
     public List<PostResponse> getPopularPosts(int page, int limit, String category) {
@@ -84,9 +86,12 @@ public class PostService {
         } else {
             postPage = postRepository.findAll(pageable);
         }
-        return postPage.getContent().stream()
-                .map(postMapper::mapToDto)
-                .collect(Collectors.toList());
+        List<PostResponse> postResponses = new ArrayList<>();
+        for (Post post : postPage.getContent()) {
+            postResponses.add(postDtoMapper.mapToDto(post));
+        }
+
+        return postResponses;
     }
 
     public List<PostResponse> getLatestPosts(int page, int limit, String search) {
@@ -98,9 +103,12 @@ public class PostService {
         } else {
             postPage = postRepository.findAll(pageable);
         }
-        return postPage.getContent().stream()
-                .map(postMapper::mapToDto)
-                .collect(Collectors.toList());
+        List<PostResponse> postResponses = new ArrayList<>();
+        for (Post post : postPage.getContent()) {
+            postResponses.add(postDtoMapper.mapToDto(post));
+        }
+
+        return postResponses;
     }
 
     // ✅ NEW: Get all posts with pagination and optional category filtering (WITH
@@ -121,24 +129,12 @@ public class PostService {
             log.info("🔍 Debug: Step 3 - Paginated to {} posts (start: {}, end: {})", paginatedPosts.size(), startIndex,
                     endIndex);
 
-            log.info("🔍 Debug: Step 4 - Starting to map posts to DTOs...");
-            List<PostResponse> result = paginatedPosts.stream()
-                    .map(post -> {
-                        try {
-                            log.info("🔍 Debug: Step 4a - Mapping post with ID: {}", post.getId());
-                            PostResponse response = postMapper.mapToDto(post);
-                            log.info("🔍 Debug: Step 4b - Successfully mapped post ID: {}", post.getId());
-                            return response;
-                        } catch (Exception e) {
-                            log.error("❌ Debug: Error mapping post ID {}: {}", post.getId(), e.getMessage(), e);
-                            throw new RuntimeException("PostMapper failed for post " + post.getId(), e);
-                        }
-                    })
-                    .collect(Collectors.toList());
+            List<PostResponse> postResponses = new ArrayList<>();
+            for (Post post : paginatedPosts) {
+                postResponses.add(postDtoMapper.mapToDto(post));
+            }
 
-            log.info("🔍 Debug: Step 5 - Successfully mapped {} posts", result.size());
-            return result;
-
+            return postResponses;
         } catch (Exception e) {
             log.error("❌ Error in getAllPosts: {}", e.getMessage(), e);
             log.error("❌ Full stack trace: ", e);
@@ -191,11 +187,12 @@ public class PostService {
             // later)
             List<Post> posts = postRepository.findAll(Sort.by(Sort.Direction.DESC, "voteCount"));
 
-            return posts.stream()
-                    .limit(limit)
-                    .map(postMapper::mapToDto)
-                    .collect(Collectors.toList());
+            List<PostResponse> postResponses = new ArrayList<>();
+            for (Post post : posts) {
+                postResponses.add(postDtoMapper.mapToDto(post));
+            }
 
+            return postResponses;
         } catch (Exception e) {
             log.error("❌ Error getting popular posts: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to fetch popular posts", e);
@@ -207,7 +204,7 @@ public class PostService {
         try {
             Post post = postRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Post not found with id: " + id));
-            return postMapper.mapToDto(post);
+            return postDtoMapper.mapToDto(post);
         } catch (Exception e) {
             log.error("❌ Error getting post by ID: {}", e.getMessage(), e);
             throw new RuntimeException("Post not found", e);
@@ -269,7 +266,7 @@ public class PostService {
     // ✅ EXISTING: Save post (keep as is)
     public void save(PostRequest postRequest) {
         User currentUser = authService.getCurrentUser();
-        Post post = postMapper.map(postRequest, currentUser);
+        Post post = postDtoMapper.mapPostRequestToPost(postRequest, currentUser);
         postRepository.save(post);
     }
 
@@ -279,11 +276,13 @@ public class PostService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
 
-        // ✅ FIX: Use the correct repository method that actually exists
-        return postRepository.findByUserUsername(username) // ← This method exists in your repository
-                .stream()
-                .map(postMapper::mapToDto)
-                .collect(Collectors.toList());
+        List<Post> posts = postRepository.findByUserUsername(username);
+        List<PostResponse> postResponses = new ArrayList<>();
+        for (Post post : posts) {
+            postResponses.add(postDtoMapper.mapToDto(post));
+        }
+
+        return postResponses;
     }
 
     // ✅ NEW: Update post by ID
@@ -307,7 +306,7 @@ public class PostService {
 
             postRepository.save(post);
             log.info("✅ Post updated: {}", postId);
-            return postMapper.mapToDto(post);
+            return postDtoMapper.mapToDto(post);
         } catch (Exception e) {
             log.error("❌ Error updating post: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to update post", e);

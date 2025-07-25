@@ -1,14 +1,14 @@
 package com.neoping.backend.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import com.neoping.backend.mapper.CommentDTOMapper;
 import org.springframework.stereotype.Service;
 
 import com.neoping.backend.dto.CommentDto;
 import com.neoping.backend.exception.SpringRedditException;
-import com.neoping.backend.mapper.CommentMapper;
 import com.neoping.backend.model.Comment;
 import com.neoping.backend.model.NotificationEmail;
 import com.neoping.backend.model.Post;
@@ -31,7 +31,7 @@ public class CommentService {
         private final UserRepository userRepository;
 
         private final CommentRepository commentRepository;
-        private final CommentMapper commentMapper;
+        private final CommentDTOMapper commentDTOMapper;
         private final MailContentBuilder mailContentBuilder;
         private final MailService mailService;
 
@@ -57,13 +57,12 @@ public class CommentService {
                                 .orElseThrow(() -> new SpringRedditException(
                                                 "Post not found with id: " + commentDto.getPostId()));
 
-                post.getUser().getUsername(); // Force load user
 
                 User user = userRepository.findByUsername(commentDto.getUserName())
                                 .orElseThrow(() -> new SpringRedditException(
                                                 "User not found: " + commentDto.getUserName()));
 
-                Comment comment = commentMapper.map(commentDto, post, user);
+                Comment comment = commentDTOMapper.mapFromDTO(commentDto, post, user);
                 comment.setCreatedAt(LocalDateTime.now());
 
                 // Handle nested comment
@@ -97,19 +96,26 @@ public class CommentService {
                 if (comments == null) {
                         return List.of();
                 }
-                // Map to DTOs, handle possible serialization issues
-                return comments.stream()
-                                .map(commentMapper::mapToDto)
-                                .collect(Collectors.toList());
+
+                List<CommentDto> commentDtos = new ArrayList<>();
+                for (Comment comment : comments) {
+                        commentDtos.add((commentDTOMapper.mapToDto(comment)));
+                }
+
+                return commentDtos;
         }
 
         public List<CommentDto> getAllCommentsForUser(String username) {
                 User user = userRepository.findByUsername(username)
                                 .orElseThrow(() -> new SpringRedditException("User not found: " + username));
 
-                return commentRepository.findAllByUser(user).stream()
-                                .map(commentMapper::mapToDto)
-                                .collect(Collectors.toList());
+                List<Comment> comments = commentRepository.findAllByUser(user);
+                List<CommentDto> commentDtos = new ArrayList<>();
+                for (Comment comment : comments) {
+                        commentDtos.add(commentDTOMapper.mapToDto(comment));
+                }
+
+                return commentDtos;
         }
 
         public List<Comment> getCommentsByPostId(Long postId) {

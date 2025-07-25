@@ -17,9 +17,13 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/notifications")
-@RequiredArgsConstructor
 public class NotificationController {
+
     private final NotificationService notificationService;
+
+    public NotificationController(NotificationService notificationService) {
+        this.notificationService = notificationService;
+    }
 
     @GetMapping
     public ResponseEntity<List<NotificationDto>> getNotifications(Principal principal) {

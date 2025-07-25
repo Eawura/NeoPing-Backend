@@ -5,11 +5,13 @@ import java.util.stream.Collectors;
 import com.neoping.backend.dto.NotificationDto;
 import com.neoping.backend.model.Notification;
 import com.neoping.backend.repository.NotificationRepository;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class NotificationService {
     private final NotificationRepository notificationRepository;
 
@@ -22,7 +24,9 @@ public class NotificationService {
 
     public void markAllAsRead(String username) {
         List<Notification> notifications = notificationRepository.findByRecipientOrderByTimeDesc(username);
-        notifications.forEach(n -> n.setRead(true));
+        for (Notification notification : notifications) {
+            notification.setRead(true);
+        }
         notificationRepository.saveAll(notifications);
     }
 

@@ -1,5 +1,6 @@
 package com.neoping.backend.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -8,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.neoping.backend.dto.CommunityDto;
 import com.neoping.backend.exception.SpringRedditException;
-import com.neoping.backend.mapper.CommunityMapper;
+import com.neoping.backend.mapper.CommunityDTOMapper;
 import com.neoping.backend.model.Community;
 import com.neoping.backend.model.User;
 import com.neoping.backend.repository.CommunityRepository;
@@ -20,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CommunityService {
     private final CommunityRepository communityRepository;
-    private final CommunityMapper communityMapper;
+    private final CommunityDTOMapper communityDTOMapper;
     private final UserRepository userRepository;
 
     @Transactional
@@ -30,23 +31,27 @@ public class CommunityService {
         }
         User creator = userRepository.findByUsername(creatorUsername)
                 .orElseThrow(() -> new SpringRedditException("User not found: " + creatorUsername));
-        Community community = communityMapper.fromDto(dto);
+        Community community = communityDTOMapper.fromDto(dto);
         community.setCreator(creator);
         Community saved = communityRepository.save(community);
-        return communityMapper.toDto(saved);
+        return communityDTOMapper.toDto(saved);
     }
 
     @Transactional(readOnly = true)
     public List<CommunityDto> getAllCommunities() {
-        return communityRepository.findAll().stream()
-                .map(communityMapper::toDto)
-                .collect(Collectors.toList());
+        List<CommunityDto> communityDtos = new ArrayList<>();
+        List<Community> communities = communityRepository.findAll();
+        for (Community community : communities) {
+            communityDtos.add(communityDTOMapper.toDto(community));
+        }
+
+        return communityDtos;
     }
 
     @Transactional(readOnly = true)
     public CommunityDto getCommunity(Long id) {
         Community community = communityRepository.findById(id)
                 .orElseThrow(() -> new SpringRedditException("Community not found with id: " + id));
-        return communityMapper.toDto(community);
+        return communityDTOMapper.toDto(community);
     }
 }
