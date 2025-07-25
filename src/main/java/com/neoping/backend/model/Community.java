@@ -18,8 +18,6 @@ import lombok.*;
 @RequiredArgsConstructor
 @Entity
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
 @Table(name = "communities")
 public class Community {
     @Id
