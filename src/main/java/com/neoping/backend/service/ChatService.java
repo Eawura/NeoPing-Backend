@@ -17,12 +17,11 @@ public class ChatService {
 
     // Send a message
     public ChatMessage sendMessage(Long senderId, Long receiverId, String content) {
-        ChatMessage message = ChatMessage.builder()
-                .senderId(senderId)
-                .receiverId(receiverId)
-                .content(content)
-                .timestamp(Instant.now())
-                .build();
+        ChatMessage message = new ChatMessage();
+        message.setSenderId(senderId);
+        message.setReceiverId(receiverId);
+        message.setContent(content);
+        message.setTimestamp(Instant.now());
         return chatMessageRepository.save(message);
     }
 

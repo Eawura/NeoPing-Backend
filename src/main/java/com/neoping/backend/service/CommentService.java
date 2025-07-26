@@ -150,12 +150,11 @@ public class CommentService {
                                                         "User not found with username: " + username));
 
                         // Create comment using your existing Comment entity
-                        Comment comment = Comment.builder()
-                                        .content(content)
-                                        .post(post)
-                                        .user(user)
-                                        .build();
-
+                        Comment comment = new Comment();
+                        comment.setContent(content);
+                        comment.setPost(post);
+                        comment.setUser(user);
+                        comment.setCreatedAt(LocalDateTime.now());
                         // Save using your existing repository
                         Comment savedComment = commentRepository.save(comment);
                         log.info("✅ Comment saved with ID: {}", savedComment.getId());

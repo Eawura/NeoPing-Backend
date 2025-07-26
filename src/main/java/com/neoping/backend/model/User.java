@@ -20,7 +20,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class User {
 
     @Id
@@ -39,7 +38,6 @@ public class User {
     private Instant created;
 
     @Column(nullable = false)
-    @Builder.Default
     private boolean enabled = true;
 
 }

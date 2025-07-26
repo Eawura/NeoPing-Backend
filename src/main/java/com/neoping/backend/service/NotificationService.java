@@ -39,18 +39,18 @@ public class NotificationService {
     }
 
     private NotificationDto toDto(Notification n) {
-        return NotificationDto.builder()
-                .id(n.getId())
-                .type(n.getType())
-                .user(n.getUser())
-                .avatar(n.getAvatar())
-                .action(n.getAction())
-                .content(n.getContent())
-                .time(n.getTime())
-                .read(n.isRead())
-                .postId(n.getPostId())
-                .commentId(n.getCommentId())
-                .awardType(n.getAwardType())
-                .build();
+        NotificationDto dto = new NotificationDto();
+        dto.setId(n.getId());
+        dto.setType(n.getType());
+        dto.setUser(n.getUser());
+        dto.setAvatar(n.getAvatar());
+        dto.setAction(n.getAction());
+        dto.setContent(n.getContent());
+        dto.setTime(n.getTime());
+        dto.setRead(n.isRead());
+        dto.setPostId(n.getPostId());
+        dto.setCommentId(n.getCommentId());
+        dto.setAwardType(n.getAwardType());
+        return dto;
     }
 }

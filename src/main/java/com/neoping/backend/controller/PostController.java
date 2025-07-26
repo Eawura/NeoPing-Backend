@@ -85,27 +85,26 @@ public class PostController {
             }
             List<PostResponse> posts = postService.getAllPosts(limit, offset, category, currentUsername);
             int total = postService.getTotalPostsCount(category);
-            PostListResponse response = PostListResponse.builder()
-                    .posts(posts)
-                    .total(total)
-                    .limit(limit)
-                    .offset(offset)
-                    .hasMore(offset + limit < total)
-                    .success(true)
-                    .build();
+            PostListResponse response = new PostListResponse();
+            response.setPosts(posts);
+            response.setTotal(total);
+            response.setLimit(limit);
+            response.setOffset(offset);
+            response.setHasMore(offset + limit < total);
+            response.setSuccess(true);
             log.info("✅ Found {} posts", posts.size());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("❌ Error getting posts: {}", e.getMessage(), e);
+            PostListResponse response = new PostListResponse();
+            response.setPosts(Collections.emptyList());
+            response.setTotal(0);
+            response.setLimit(limit);
+            response.setOffset(offset);
+            response.setSuccess(false);
+            response.setError("Failed to fetch posts: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(PostListResponse.builder()
-                            .posts(Collections.emptyList())
-                            .total(0)
-                            .limit(limit)
-                            .offset(offset)
-                            .success(false)
-                            .error("Failed to fetch posts: " + e.getMessage())
-                            .build());
+                    .body(response);
         }
     }
 
@@ -195,26 +194,25 @@ public class PostController {
             }
             List<PostResponse> posts = postService.getPostsByCategory(category, limit, offset, currentUsername);
             int total = postService.getTotalPostsByCategoryCount(category);
-            PostListResponse response = PostListResponse.builder()
-                    .posts(posts)
-                    .total(total)
-                    .limit(limit)
-                    .offset(offset)
-                    .hasMore(offset + limit < total)
-                    .success(true)
-                    .build();
+            PostListResponse response = new PostListResponse();
+            response.setPosts(posts);
+            response.setTotal(total);
+            response.setLimit(limit);
+            response.setOffset(offset);
+            response.setHasMore(offset + limit < total);
+            response.setSuccess(true);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("❌ Error getting posts by category: {}", e.getMessage(), e);
+            PostListResponse response = new PostListResponse();
+            response.setPosts(Collections.emptyList());
+            response.setTotal(0);
+            response.setLimit(limit);
+            response.setOffset(offset);
+            response.setSuccess(false);
+            response.setError("Failed to fetch posts by category: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(PostListResponse.builder()
-                            .posts(Collections.emptyList())
-                            .total(0)
-                            .limit(limit)
-                            .offset(offset)
-                            .success(false)
-                            .error("Failed to fetch posts by category: " + e.getMessage())
-                            .build());
+                    .body(response);
         }
     }
 

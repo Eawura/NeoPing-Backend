@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.neoping.backend.model.NewsComment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,17 +31,16 @@ public class NewsService {
 
     // Create a news article
     public NewsDto createNews(NewsDto newsDto) {
-        News news = News.builder()
-                .user(newsDto.getUser())
-                .avatar(newsDto.getAvatar())
-                .title(newsDto.getTitle())
-                .excerpt(newsDto.getExcerpt())
-                .image(newsDto.getImage())
-                .category(newsDto.getCategory())
-                .timestamp(newsDto.getTimestamp() != null ? newsDto.getTimestamp() : Instant.now())
-                .upvotes(0)
-                .comments(0)
-                .build();
+        News news = new News();
+        news.setUser(newsDto.getUser());
+        news.setAvatar(newsDto.getAvatar());
+        news.setTitle(newsDto.getTitle());
+        news.setExcerpt(newsDto.getExcerpt());
+        news.setImage(newsDto.getImage());
+        news.setCategory(newsDto.getCategory());
+        news.setTimestamp(newsDto.getTimestamp() != null ? newsDto.getTimestamp() : Instant.now());
+        news.setUpvotes(0);
+        news.setComments(0);
         News saved = newsRepository.save(news);
         return toDto(saved);
     }
@@ -93,12 +93,11 @@ public class NewsService {
     public void addComment(Long newsId, String username, String commentText) {
         News news = newsRepository.findById(newsId)
                 .orElseThrow(() -> new RuntimeException("News not found"));
-        com.neoping.backend.model.NewsComment comment = com.neoping.backend.model.NewsComment.builder()
-                .news(news)
-                .username(username)
-                .content(commentText)
-                .createdAt(Instant.now())
-                .build();
+        NewsComment comment = new NewsComment();
+        comment.setNews(news);
+        comment.setUsername(username);
+        comment.setContent(commentText);
+        comment.setCreatedAt(Instant.now());
         newsCommentRepository.save(comment);
         news.setComments(news.getComments() + 1);
         newsRepository.save(news);
@@ -108,32 +107,29 @@ public class NewsService {
         News news = newsRepository.findById(newsId)
                 .orElseThrow(() -> new RuntimeException("News not found"));
         if (!bookmarkRepository.existsByUsernameAndNewsId(username, newsId)) {
-            Bookmark bookmark = Bookmark.builder()
-                    .username(username)
-                    .news(news)
-                    .bookmarkedAt(Instant.now())
-                    .build();
+            Bookmark bookmark = new Bookmark();
+            bookmark.setUsername(username);
+            bookmark.setNews(news);
+            bookmark.setBookmarkedAt(Instant.now());
             bookmarkRepository.save(bookmark);
         }
     }
 
     private NewsDto toDto(News n) {
-        return NewsDto.builder()
-                .id(n.getId())
-                .user(n.getUser())
-                .avatar(n.getAvatar())
-                .title(n.getTitle())
-                .excerpt(n.getExcerpt())
-                .image(n.getImage())
-                .category(n.getCategory())
-                .timestamp(n.getTimestamp())
-                .upvotes(n.getUpvotes())
-                .comments(n.getComments())
-
-                // TODO: set upvoted, downvoted, saved based on user interaction
-                .upvoted(false)
-                .downvoted(false)
-                .saved(false)
-                .build();
+        NewsDto dto = new NewsDto();
+        dto.setId(n.getId());
+        dto.setTitle(n.getTitle());
+        dto.setExcerpt(n.getExcerpt());
+        dto.setCategory(n.getCategory());
+        dto.setTimestamp(n.getTimestamp());
+        dto.setUpvotes(n.getUpvotes());
+        dto.setComments(n.getComments());
+        dto.setAvatar(n.getAvatar());
+        dto.setUser(n.getUser());
+        dto.setImage(n.getImage());
+        dto.setUpvoted(false);
+        dto.setDownvoted(false);
+        dto.setSaved(false);
+        return dto;
     }
 }

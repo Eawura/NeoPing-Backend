@@ -17,7 +17,6 @@ import lombok.*;
 @Setter
 @RequiredArgsConstructor
 @Entity
-@Builder
 @Table(name = "communities")
 public class Community {
     @Id
@@ -40,11 +39,9 @@ public class Community {
     private String avatar; // image filename or URL
 
     @Column(nullable = false)
-    @Builder.Default
     private boolean isPublic = true;
 
     @Column(nullable = false)
-    @Builder.Default
     private int members = 1;
 
     @Column(length = 1000)

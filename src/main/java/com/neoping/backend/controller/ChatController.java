@@ -91,12 +91,12 @@ public class ChatController {
 
     // Helper method to map entity to DTO
     private ChatMessageDto mapToDto(ChatMessage message) {
-        return ChatMessageDto.builder()
-                .id(message.getId())
-                .senderId(message.getSenderId())
-                .receiverId(message.getReceiverId())
-                .content(message.getContent())
-                .timestamp(message.getTimestamp())
-                .build();
+        ChatMessageDto chatMessageDto = new ChatMessageDto();
+        chatMessageDto.setSenderId(message.getSenderId());
+        chatMessageDto.setContent(message.getContent());
+        chatMessageDto.setSenderId(message.getSenderId());
+        chatMessageDto.setReceiverId(message.getReceiverId());
+        chatMessageDto.setTimestamp(message.getTimestamp());
+        return chatMessageDto;
     }
 }
