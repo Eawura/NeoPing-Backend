@@ -16,7 +16,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Bookmark {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

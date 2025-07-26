@@ -26,14 +26,15 @@ public class InboxService {
             boolean unread = messages.stream().anyMatch(m -> m.getRecipient().equals(username) && m.isUnread());
             String otherUser = conv.getUser1().equals(username) ? conv.getUser2() : conv.getUser1();
             String avatar = conv.getUser1().equals(username) ? conv.getAvatar2() : conv.getAvatar1();
-            return ConversationSummaryDto.builder()
-                    .id(conv.getId())
-                    .user(otherUser)
-                    .avatar(avatar)
-                    .lastMessage(last != null ? last.getContent() : "")
-                    .time(last != null ? last.getTime() : "")
-                    .unread(unread)
-                    .build();
+
+            ConversationSummaryDto conversationSummaryDto = new ConversationSummaryDto();
+            conversationSummaryDto.setId(conv.getId());
+            conversationSummaryDto.setUser(otherUser);
+            conversationSummaryDto.setAvatar(avatar);
+            conversationSummaryDto.setUnread(unread);
+            conversationSummaryDto.setLastMessage(last != null ? last.getContent() : "");
+            conversationSummaryDto.setTime(last != null ? last.getTime() : "");
+            return conversationSummaryDto;
         }).collect(Collectors.toList());
     }
 
@@ -47,16 +48,13 @@ public class InboxService {
     public MessageDto sendMessage(Long conversationId, String sender, MessageDto dto) {
         Conversation conv = conversationRepository.findById(conversationId).orElseThrow();
         String recipient = conv.getUser1().equals(sender) ? conv.getUser2() : conv.getUser1();
-        Message message = Message.builder()
-                .conversation(conv)
-                .sender(sender)
-                .recipient(recipient)
-                .content(dto.getContent())
-                .time(LocalDateTime.now().toString())
-                .unread(true)
-                .build();
-        message = messageRepository.save(message);
-        return toDto(message);
+        Message message = new Message();
+        message.setSender(sender);
+        message.setRecipient(recipient);
+        message.setContent(dto.getContent());
+        message.setTime(LocalDateTime.now().toString());
+        message.setUnread(true);
+        return toDto(messageRepository.save(message));
     }
 
     public void markConversationAsRead(Long conversationId, String username) {
@@ -68,13 +66,13 @@ public class InboxService {
     }
 
     private MessageDto toDto(Message m) {
-        return MessageDto.builder()
-                .id(m.getId())
-                .sender(m.getSender())
-                .recipient(m.getRecipient())
-                .content(m.getContent())
-                .time(m.getTime())
-                .unread(m.isUnread())
-                .build();
+        MessageDto dto = new MessageDto();
+        dto.setId(m.getId());
+        dto.setSender(m.getSender());
+        dto.setRecipient(m.getRecipient());
+        dto.setContent(m.getContent());
+        dto.setTime(m.getTime());
+        dto.setUnread(m.isUnread());
+        return dto;
     }
 }

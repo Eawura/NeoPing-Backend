@@ -21,7 +21,6 @@ import lombok.*;
 @RequiredArgsConstructor
 @Getter
 @Setter
-@Builder
 @Entity
 public class Post {
 
@@ -37,7 +36,6 @@ public class Post {
     @Lob
     private String description;
 
-    @Builder.Default
     private Long voteCount = 0L;
 
     private Instant createdDate;

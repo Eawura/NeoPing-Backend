@@ -73,22 +73,21 @@ public class AuthService {
 
     @Transactional
     public void signup(RegisterRequest registerRequest) {
-        User user = User.builder()
-                .username(registerRequest.getUsername())
-                .password(passwordEncoder.encode(registerRequest.getPassword()))
-                .email(registerRequest.getEmail())
-                .created(Instant.now())
-                .enabled(true)
-                .build();
+        User user = new User();
+        user.setUsername(registerRequest.getUsername());
+        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+        user.setEmail(registerRequest.getEmail());
+        user.setCreated(Instant.now());
+        user.setEnabled(true);
         userRepository.save(user);
 
         String token = generateVerificationToken(user);
-        mailService.sendMail(new NotificationEmail(
-                "Please Activate your Account",
-                user.getEmail(),
-                "Thank you for signing up to NeoPing, " +
-                        "please click on the below url to activate your account: " +
-                        "http://localhost:8082/api/auth/accountVerification/" + token));
+//        mailService.sendMail(new NotificationEmail(
+//                "Please Activate your Account",
+//                user.getEmail(),
+//                "Thank you for signing up to NeoPing, " +
+//                        "please click on the below url to activate your account: " +
+//                        "http://localhost:8082/api/auth/accountVerification/" + token));
     }
 
     @Transactional
@@ -106,19 +105,17 @@ public class AuthService {
 
         // Check if user exists before attempting authentication
         Optional<User> userOptional = userRepository.findByUsername(loginRequest.getUsername());
-        if (!userOptional.isPresent()) {
+        if (userOptional.isEmpty()) {
             // Try with u/ prefix
             userOptional = userRepository.findByUsername("u/" + loginRequest.getUsername());
-            if (!userOptional.isPresent()) {
+            if (userOptional.isEmpty()) {
                 // Try partial match
                 userOptional = userRepository.findAll().stream()
                         .filter(u -> u.getUsername().toLowerCase().contains(loginRequest.getUsername().toLowerCase()) ||
                                 loginRequest.getUsername().toLowerCase().contains(u.getUsername().toLowerCase()))
                         .findFirst();
-                if (userOptional.isPresent()) {
-                    logger.info("Found user with partial match: {} for input: {}",
-                            userOptional.get().getUsername(), loginRequest.getUsername());
-                }
+                userOptional.ifPresent(user -> logger.info("Found user with partial match: {} for input: {}",
+                        user.getUsername(), loginRequest.getUsername()));
             } else {
                 logger.info("Found user with u/ prefix: {} for input: {}",
                         userOptional.get().getUsername(), loginRequest.getUsername());
@@ -127,7 +124,7 @@ public class AuthService {
             logger.info("Found user with exact match: {}", loginRequest.getUsername());
         }
 
-        if (!userOptional.isPresent()) {
+        if (userOptional.isEmpty()) {
             logger.warn("No user found for username: {}", loginRequest.getUsername());
             throw new SpringRedditException("User not found with username: " + loginRequest.getUsername());
         }

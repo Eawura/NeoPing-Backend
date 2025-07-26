@@ -36,7 +36,6 @@ public class PostDTOMapper {
         response.setCreatedDate(post.getCreatedDate());
         response.setTimestamp(post.getCreatedDate());
         response.setUserName(post.getUser().getUsername());
-        response.setUsername(post.getUser().getUsername());
         response.setUser(post.getUser().getUsername());
         response.setCommentCount(getCommentCount(post));
         response.setVoteCount(post.getVoteCount() != null ? post.getVoteCount().intValue() : 0);
