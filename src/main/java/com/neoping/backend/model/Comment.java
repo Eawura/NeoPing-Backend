@@ -17,12 +17,8 @@ public class Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-@Data
-@Entity
-@Builder
-@AllArgsConstructor // Added to include all fields in the constructor
-@NoArgsConstructor
-@Table(name = "comments")
+    private Long id;
+
     private String postName;
 
     @Column(name = "url")
