@@ -18,10 +18,15 @@ import jakarta.persistence.PrePersist;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
-@RequiredArgsConstructor
 @Getter
 @Setter
 @Builder
+@Entity
+@Getter
+@Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 public class Post {
 

@@ -88,7 +88,8 @@ public class PostDTOMapper {
     }
 
     private int getCommentCount(Post post) {
-        if (post == null || post.getId() == null) return 0;
+        if (post == null || post.getId() == null)
+            return 0;
         return (int) commentRepository.countByPostId(post.getId());
     }
 
@@ -124,4 +125,3 @@ public class PostDTOMapper {
         }
     }
 }
-
