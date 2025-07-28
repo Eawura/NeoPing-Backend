@@ -40,10 +40,10 @@ private final VoteRepository voteRepository;
     }
 
     private Vote mapToVote(VoteDto voteDto, Post post) {
-        return Vote.builder()
-            .post(post)
-            .user(authService.getCurrentUser())
-            .voteType(voteDto.getVoteType())
-            .build();
+        Vote vote = new Vote();
+        vote.setPost(post);
+        vote.setUser(authService.getCurrentUser());
+        vote.setVoteType(voteDto.getVoteType());
+        return vote;
     }
 }

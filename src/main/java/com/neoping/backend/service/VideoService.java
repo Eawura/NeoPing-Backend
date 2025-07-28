@@ -35,16 +35,16 @@ public class VideoService {
     }
 
     private VideoDto toDto(Video v) {
-        return VideoDto.builder()
-                .id(v.getId())
-                .title(v.getTitle())
-                .description(v.getDescription())
-                .url(v.getUrl())
-                .thumbnail(v.getThumbnail())
-                .category(v.getCategory())
-                .uploadedAt(v.getUploadedAt())
-                .uploader(v.getUploader())
-                .views(v.getViews())
-                .build();
+        VideoDto dto = new VideoDto();
+        dto.setId(v.getId());
+        dto.setTitle(v.getTitle());
+        dto.setDescription(v.getDescription());
+        dto.setUrl(v.getUrl());
+        dto.setThumbnail(v.getThumbnail());
+        dto.setCategory(v.getCategory());
+        dto.setUploadedAt(v.getUploadedAt());
+        dto.setUploader(v.getUploader());
+        dto.setViews(v.getViews());
+        return dto;
     }
 }

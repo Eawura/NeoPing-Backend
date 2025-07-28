@@ -39,12 +39,10 @@ public class JwtProvider {
     public void init() {
         try {
             keyStore = KeyStore.getInstance("JKS");
-            // ✅ Fixed: Use keystore.jks instead of springblog.jks
             InputStream resourceStream = getClass().getResourceAsStream("/keystore.jks");
             if (resourceStream == null) {
                 throw new SpringRedditException("Keystore file not found in resources");
             }
-            // ✅ Fixed: Use springblog password instead of secret
             keyStore.load(resourceStream, "springblog".toCharArray());
         } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | java.io.IOException e) {
             throw new SpringRedditException("Failed to initialize keystore", e);

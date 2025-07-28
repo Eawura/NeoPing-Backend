@@ -12,7 +12,6 @@ import jakarta.persistence.*;
 @Getter
 @Setter
 @Entity
-@Builder
 @Table(name = "comments")
 public class Comment {
 

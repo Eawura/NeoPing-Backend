@@ -62,12 +62,13 @@ public class ProfileService {
     }
 
     private ProfileDto toDto(Profile profile) {
-        return ProfileDto.builder()
-                .username(profile.getUser().getUsername())
-                .email(profile.getUser().getEmail())
-                .avatar(profile.getAvatar())
-                .bio(profile.getBio())
-                .created(profile.getCreated())
-                .build();
+        ProfileDto dto = new ProfileDto();
+        dto.setUsername(profile.getUser().getUsername());
+        dto.setEmail(profile.getUser().getEmail());
+        dto.setAvatar(profile.getAvatar());
+        dto.setBio(profile.getBio());
+        dto.setCreated(profile.getCreated());
+        return dto;
     }
+
 }

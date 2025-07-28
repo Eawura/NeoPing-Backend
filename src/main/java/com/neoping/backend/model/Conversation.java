@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Conversation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

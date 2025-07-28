@@ -20,7 +20,6 @@ import lombok.*;
 
 @Getter
 @Setter
-@Builder
 @Entity
 @Getter
 @Setter
@@ -42,7 +41,6 @@ public class Post {
     @Lob
     private String description;
 
-    @Builder.Default
     private Long voteCount = 0L;
 
     private Instant createdDate;
